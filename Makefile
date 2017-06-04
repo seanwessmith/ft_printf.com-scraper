@@ -1,53 +1,70 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
+#    makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tchan <tchan@student.42.us.org>            +#+  +:+       +#+         #
+#    By: ssmith <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2017/05/15 21:10:43 by tchan             #+#    #+#              #
-#    Updated: 2017/05/15 21:10:44 by tchan            ###   ########.fr        #
+#    Created: 2016/11/07 08:55:56 by ssmith            #+#    #+#              #
+#    Updated: 2017/02/05 23:05:47 by ssmith           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = libftprintf.a
+NAME=libftprintf.a
 
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror
-AR = ar
-INC = -I ./include
+CC=cc
 
-FILES = ft_printf.c
+C_FLAGS=-Wall -Wextra -Werror
 
-OBJ = $(addprefix build/, $(FILES:.c=.o))
-SRC = $(FILES)
+SRC_DIR=./
 
-.PHONY: all clean fclean re test
+OBJ_DIR=./build/
 
-all: $(NAME)
+INC_DIR=./includes/
 
-$(NAME): $(OBJ)
-    $(AR) crs $@ $^
-    echo "Creating $(NAME)"
+# Memory functions.
+C_FILES =	ft_printf.c \
 
-build/%.o: src/%.c | build
-    @echo "Doing things to $@"
-    @$(CC) $(CFLAGS) $(INC) -c $< -o $@
+SOURCES=$(addprefix $(C_FILES))
 
-build:
-    mkdir build
+INCLUDES=$(addprefix -I, $(INC_DIR))
 
-clean:
-    @rm -rf build
-    @echo "clean successful"
+OBJECTS=$(addprefix $(OBJ_DIR), $(patsubst %.c, %.o, $(C_FILES)))
 
-fclean: clean
-    @echo "Removing $(NAME)"
-    rm -f $(NAME)
+default : all
 
-test:
-    make re
-    $(CC) $(NAME) $(MAIN) $(INC)
-    ./a.out
+test : $(NAME)
+		$(MAKE) -C ./test/ re
+		./test/test.out
 
-re: fclean all
+all : $(NAME)
+
+$(NAME) : $(OBJ_DIR) $(OBJECTS)
+		@echo "Archiving object files..."
+		@ar rc $(NAME) $(OBJECTS)
+		@echo "Done."
+		@echo "Indexing..."
+		@ranlib $(NAME)
+		@echo "Done."
+
+$(OBJ_DIR) :
+		@echo "Creating build directory..."
+		@mkdir -p $(OBJ_DIR)
+		@echo "Done."
+
+$(OBJ_DIR)%.o : $(SRC_DIR)%.c
+				$(CC) $(C_FLAGS) -c $< -o $@ $(INCLUDES)
+
+fclean : clean
+		@echo "Removing $(NAME)..."
+		@rm -rf $(NAME)
+		@echo "Done."
+
+clean :
+		@echo "Cleaning last build..."
+		@rm -rf $(OBJ_DIR)
+		@echo "Done."
+
+re : fclean all
+
+.PHONY : clean fclean re test

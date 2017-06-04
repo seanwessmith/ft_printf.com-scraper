@@ -28,10 +28,3 @@ void    ft_printf(char *str, ...)
 		x--;
 	}
 }
-
-int main (void)
-{ 
-    ft_printf("%ld\n", 429496);
-    ft_printf("%ld\n", 214748364);
-
-}
